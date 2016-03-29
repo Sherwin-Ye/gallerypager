@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -162,6 +163,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 		/************** LinearLayout的相关配置 *****************************/
 		setClipChildren(false);
 		setOrientation(LinearLayout.VERTICAL);
+		setGravity(Gravity.CENTER);
 		setLayerType(LAYER_TYPE_SOFTWARE, new Paint());
 
 		/************** viewpager的相关配置 *****************************/
