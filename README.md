@@ -3,7 +3,7 @@
 
 Using Gallery to achieve ViewPager, on both sides of the display edge, animation zoom effect
 
-### 版本号：1.0
+### 版本号：1.1
 
 #### 使用非常简单：
 1.创建布局文件
