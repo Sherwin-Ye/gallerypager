@@ -2,10 +2,11 @@ package com.sherwin.gallerypager;
 
 import java.util.LinkedList;
 
+import com.nineoldandroids.view.ViewHelper;
+
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,8 +16,8 @@ import android.view.ViewGroup;
  * @data 2016年3月29日 下午4:07:13
  * @desc GalleryViewPgerAdapter.java
  */
-public abstract class GalleryViewPgerAdapter extends PagerAdapter{
-	
+public abstract class GalleryViewPgerAdapter extends PagerAdapter {
+
 	protected Context mContext;
 	/**
 	 * 控件layout
@@ -26,32 +27,32 @@ public abstract class GalleryViewPgerAdapter extends PagerAdapter{
 	 * GalleryViewPagerLayout内部的ViewPager
 	 */
 	protected ViewPager mViewPager;
-	
+
 	/**
 	 * View缓存
 	 */
 	private LinkedList<View> viewCache;
-	
+
 	/**
 	 * 构造函数
 	 * @param context
 	 * @param galleryViewPager
 	 */
-	public GalleryViewPgerAdapter(Context context,GalleryViewPagerLayout galleryViewPager) {
-		this.mContext=context;
-		this.mGalleryViewPagerLayout=galleryViewPager;
-		this.mViewPager=mGalleryViewPagerLayout.getViewPager();
-		viewCache=new LinkedList<View>();
+	public GalleryViewPgerAdapter(Context context, GalleryViewPagerLayout galleryViewPager) {
+		this.mContext = context;
+		this.mGalleryViewPagerLayout = galleryViewPager;
+		this.mViewPager = mGalleryViewPagerLayout.getViewPager();
+		viewCache = new LinkedList<View>();
 	}
+
 	/**
 	 * 初始化缓存
 	 */
-	public void initViewCache(){
+	public void initViewCache() {
 		for (int i = 0; i < mViewPager.getOffscreenPageLimit(); i++) {
 			viewCache.add(getNewItemView());
 		}
 	}
-	
 
 	@Override
 	public boolean isViewFromObject(View arg0, Object arg1) {
@@ -71,8 +72,8 @@ public abstract class GalleryViewPgerAdapter extends PagerAdapter{
 		View contentView;
 		if (viewCache.isEmpty()) {
 			contentView = getNewItemView();
-		}else{
-			contentView=viewCache.removeFirst();
+		} else {
+			contentView = viewCache.removeFirst();
 		}
 		//执行数据绑定
 		getView(contentView, position);
@@ -80,30 +81,42 @@ public abstract class GalleryViewPgerAdapter extends PagerAdapter{
 		contentView.setTag(position);
 		return contentView;
 	}
+
 	/**
 	 * 初始化一个新的View
 	 * @return
 	 */
-	private View getNewItemView(){
-		ViewGroup contentView = (ViewGroup) LayoutInflater.from(mContext).inflate(getItemLayoutId(), null);
+	private View getNewItemView() {
+		ViewGroup contentView = getItemLayout();
 		View animView = contentView.getChildAt(0);
 		ViewGroup.LayoutParams params = animView.getLayoutParams();
-//		params.height = mGalleryViewPagerLayout.getMaxHeight() - mGalleryViewPagerLayout.getOffsetHeight();
-		params.width = mGalleryViewPagerLayout.getMaxWidth() - mGalleryViewPagerLayout.getOffsetWidth();
+		//		params.height = mGalleryViewPagerLayout.getMaxHeight() - mGalleryViewPagerLayout.getOffsetHeight();
+		params.width = mGalleryViewPagerLayout.getMaxWidth();
+		params.height = mGalleryViewPagerLayout.getMaxHeight();
 		animView.setLayoutParams(params);
+		ViewHelper.setScaleY(contentView, mGalleryViewPagerLayout.getScaleSize());
+		ViewHelper.setScaleX(contentView, mGalleryViewPagerLayout.getScaleSize());
 		return contentView;
 	}
-	
+
+
 	/**
 	 * 提供给外部设置数据绑定用
-	 * @param contentView
+	 * @param contentView 已做处理，肯定不为空，无需判断
 	 * @param position
 	 */
 	public abstract void getView(View contentView, int position);
+
 	/**
 	 * 设置布局
 	 * @return
 	 */
-	public abstract int getItemLayoutId();
+	public abstract ViewGroup getItemLayout();
 	
+	/**
+	 * 得到数据item
+	 * @return
+	 */
+	public abstract <T> T getItemObject(int position);
+
 }

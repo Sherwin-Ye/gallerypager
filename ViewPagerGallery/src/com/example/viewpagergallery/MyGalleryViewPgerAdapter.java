@@ -6,7 +6,9 @@ import com.sherwin.gallerypager.GalleryViewPagerLayout;
 import com.sherwin.gallerypager.GalleryViewPgerAdapter;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 /**
@@ -39,7 +41,14 @@ public class MyGalleryViewPgerAdapter extends GalleryViewPgerAdapter{
 	}
 
 	@Override
-	public int getItemLayoutId() {
-		return R.layout.item;
+	public ViewGroup getItemLayout() {
+		// TODO Auto-generated method stub
+		return (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.item, null);
+	}
+
+	@Override
+	public <T> T getItemObject(int position) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

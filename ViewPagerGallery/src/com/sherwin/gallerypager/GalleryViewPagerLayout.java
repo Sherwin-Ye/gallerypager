@@ -1,5 +1,7 @@
 package com.sherwin.gallerypager;
 
+import com.nineoldandroids.view.ViewHelper;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -30,6 +32,11 @@ public class GalleryViewPagerLayout extends LinearLayout {
 	 * 适配器
 	 */
 	private GalleryViewPgerAdapter adapter;
+	
+	/**
+	 * pageChangeh回调
+	 */
+	private OnPageChangeListener onPageChangeListener;
 	/**
 	 * viewpager的参数
 	 */
@@ -45,23 +52,32 @@ public class GalleryViewPagerLayout extends LinearLayout {
 	 */
 	private int maxWidth = 500;
 	/**
-	 * 设置动画偏移量
+	 * 设置最大高度
 	 */
-	private int offsetWidth = 100;
+	private int maxHeight = 500;
+
+	/**
+	 * 缩放比例0-1.0
+	 */
+	private float scaleSize = 0.7f;
+	/**
+	 * 设置动画垂直偏移量
+	 */
+	private int offsetHeight = 100;
 
 	/**
 	 * 两边距离
 	 */
-	private int offsetSide = 100;
+	private int offsetSide = 120;
 
 	/**
 	 * 页面之间的间距
 	 */
-	private int pageMargin = 30;
+	private int pageMargin = 0;
 	/**
 	 * 是否允许点击两侧切换
 	 */
-	private boolean enableClickSide = true;
+	private boolean enableClickSide = false;
 	/**
 	 * 是否允许缩放动画
 	 */
@@ -69,7 +85,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 	/**
 	 * 判断当前控件是否已经绘制
 	 */
-	private boolean isOnLayout=false;
+	private boolean isOnLayout = false;
 
 	public GalleryViewPgerAdapter getAdapter() {
 		return adapter;
@@ -80,6 +96,14 @@ public class GalleryViewPagerLayout extends LinearLayout {
 		if (isOnLayout) {//已经绘制时才直接设置，否则当绘制时才设置
 			this.mViewPager.setAdapter(adapter);
 		}
+	}
+	
+	public OnPageChangeListener getOnPageChangeListener() {
+		return onPageChangeListener;
+	}
+
+	public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
+		this.onPageChangeListener = onPageChangeListener;
 	}
 
 	public int getMaxWidth() {
@@ -94,16 +118,40 @@ public class GalleryViewPagerLayout extends LinearLayout {
 		this.maxWidth = maxWidth;
 	}
 
-	public int getOffsetWidth() {
-		return offsetWidth;
+	public int getMaxHeight() {
+		return maxHeight;
 	}
 
 	/**
-	 * 设置item动画偏移宽度
-	 * @param maxWidth
+	 * 设置最大高度
+	 * @param maxHeight
 	 */
-	public void setOffsetWidth(int offsetWidth) {
-		this.offsetWidth = offsetWidth;
+	public void setMaxHeight(int maxHeight) {
+		this.maxHeight = maxHeight;
+	}
+
+	public float getScaleSize() {
+		return scaleSize;
+	}
+
+	/**
+	 * 设置缩放到的比例
+	 * @param scaleSize
+	 */
+	public void setScaleSize(float scaleSize) {
+		this.scaleSize = scaleSize;
+	}
+
+	public int getOffsetHeight() {
+		return offsetHeight;
+	}
+
+	/**
+	 * 设置item动画垂直偏移宽度
+	 * @param offsetHeight
+	 */
+	public void setOffsetHeight(int offsetHeight) {
+		this.offsetHeight = offsetHeight;
 	}
 
 	public int getOffsetSide() {
@@ -160,6 +208,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 		DisplayMetrics dm = resources.getDisplayMetrics();
 		layoutWidth = dm.widthPixels;
 		maxWidth = layoutWidth - offsetSide * 2;
+		maxHeight = maxWidth * 4 / 3;
 		/************** LinearLayout的相关配置 *****************************/
 		setClipChildren(false);
 		setOrientation(LinearLayout.VERTICAL);
@@ -183,14 +232,16 @@ public class GalleryViewPagerLayout extends LinearLayout {
 		setTouchEvent();
 		setPageChangeListener();
 	}
+
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		// TODO Auto-generated method stub
 		super.onLayout(changed, l, t, r, b);
-		layoutWidth = r-l;
+		layoutWidth = r - l;
 		maxWidth = layoutWidth - offsetSide * 2;
-		if (adapter!=null&&!isOnLayout) {//只会执行一次
-			isOnLayout=true;
+		maxHeight = maxWidth * 4 / 3;
+		if (adapter != null && !isOnLayout) {//只会执行一次
+			isOnLayout = true;
 			adapter.initViewCache();
 			this.mViewPager.setAdapter(adapter);
 		}
@@ -205,7 +256,9 @@ public class GalleryViewPagerLayout extends LinearLayout {
 
 			@Override
 			public void onPageSelected(int position) {
-
+				if (onPageChangeListener!=null) {
+					onPageChangeListener.onPageSelected(position);
+				}
 			}
 
 			@Override
@@ -213,28 +266,29 @@ public class GalleryViewPagerLayout extends LinearLayout {
 				if (adapter == null || !enableScale) {
 					return;
 				}
+				if (onPageChangeListener!=null) {
+					onPageChangeListener.onPageScrolled(position, degree, arg2);
+				}
 				ViewGroup contentView = (ViewGroup) mViewPager.findViewWithTag(position);
 				if (contentView != null) {
-					View animView = contentView.getChildAt(0);
-					ViewGroup.LayoutParams params = animView.getLayoutParams();
-					//					params.height = maxHeight - (int) (offsetHeight * degree);
-					params.width = maxWidth - (int) (offsetWidth * degree);
-					animView.setLayoutParams(params);
+					ViewHelper.setScaleX(contentView, 1 - degree * (1 - scaleSize));
+					ViewHelper.setScaleY(contentView, 1 - degree * (1 - scaleSize));
 				}
 				if (position < adapter.getCount() - 1) {
 					contentView = (ViewGroup) mViewPager.findViewWithTag(position + 1);
 					if (contentView != null) {
-						View animView = contentView.getChildAt(0);
-						ViewGroup.LayoutParams params = animView.getLayoutParams();
-						//						params.height = maxHeight - (int) (offsetHeight * (1 - degree));
-						params.width = maxWidth - (int) (offsetWidth * (1 - degree));
-						animView.setLayoutParams(params);
+//						View animView = contentView.getChildAt(0);
+						ViewHelper.setScaleX(contentView, 1 - (1 - degree) * (1 - scaleSize));
+						ViewHelper.setScaleY(contentView, 1 - (1 - degree) * (1 - scaleSize));
 					}
 				}
 			}
 
 			@Override
 			public void onPageScrollStateChanged(int state) {
+				if (onPageChangeListener!=null) {
+					onPageChangeListener.onPageScrollStateChanged(state);
+				}
 			}
 		});
 
