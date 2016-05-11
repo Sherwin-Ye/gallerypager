@@ -1,7 +1,6 @@
 package com.sherwin.gallerypager;
 
 import com.nineoldandroids.view.ViewHelper;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -32,7 +31,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 	 * 适配器
 	 */
 	private GalleryViewPgerAdapter adapter;
-	
+
 	/**
 	 * pageChangeh回调
 	 */
@@ -59,7 +58,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 	/**
 	 * 缩放比例0-1.0
 	 */
-	private float scaleSize = 0.7f;
+	private float scaleSize = 0.75f;
 	/**
 	 * 设置动画垂直偏移量
 	 */
@@ -97,7 +96,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 			this.mViewPager.setAdapter(adapter);
 		}
 	}
-	
+
 	public OnPageChangeListener getOnPageChangeListener() {
 		return onPageChangeListener;
 	}
@@ -160,6 +159,9 @@ public class GalleryViewPagerLayout extends LinearLayout {
 
 	public void setOffsetSide(int offsetSide) {
 		this.offsetSide = offsetSide;
+		params.leftMargin = offsetSide;
+		params.rightMargin = offsetSide;
+		mViewPager.setLayoutParams(params);
 		maxWidth = layoutWidth - offsetSide * 2;
 	}
 
@@ -256,7 +258,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 
 			@Override
 			public void onPageSelected(int position) {
-				if (onPageChangeListener!=null) {
+				if (onPageChangeListener != null) {
 					onPageChangeListener.onPageSelected(position);
 				}
 			}
@@ -266,7 +268,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 				if (adapter == null || !enableScale) {
 					return;
 				}
-				if (onPageChangeListener!=null) {
+				if (onPageChangeListener != null) {
 					onPageChangeListener.onPageScrolled(position, degree, arg2);
 				}
 				ViewGroup contentView = (ViewGroup) mViewPager.findViewWithTag(position);
@@ -277,7 +279,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 				if (position < adapter.getCount() - 1) {
 					contentView = (ViewGroup) mViewPager.findViewWithTag(position + 1);
 					if (contentView != null) {
-//						View animView = contentView.getChildAt(0);
+						//						View animView = contentView.getChildAt(0);
 						ViewHelper.setScaleX(contentView, 1 - (1 - degree) * (1 - scaleSize));
 						ViewHelper.setScaleY(contentView, 1 - (1 - degree) * (1 - scaleSize));
 					}
@@ -286,7 +288,7 @@ public class GalleryViewPagerLayout extends LinearLayout {
 
 			@Override
 			public void onPageScrollStateChanged(int state) {
-				if (onPageChangeListener!=null) {
+				if (onPageChangeListener != null) {
 					onPageChangeListener.onPageScrollStateChanged(state);
 				}
 			}
